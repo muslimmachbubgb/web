@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisi</title>
+    <link id="favicon" rel="icon" type="image/x-icon" href="">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4F46E5; --secondary-color: #6B7280; --success-color: #10B981;
+            --danger-color: #EF4444; --warning-color: #F59E0B; --info-color: #3B82F6;
+            --light-color: #F9FAFB; --dark-color: #1F2937; --background-color: #F3F4F6;
+            --text-color: #111827; --card-bg-color: #ffffff; --shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            --border-radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; }
+        
+        .menubar {
+            width: 100%;
+            background-color: var(--dark-color);
+            color: #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .menubar-header h2 { font-size: 22px; color: white; }
+        .menubar-nav { display: flex; gap: 5px; }
+        .menubar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #D1D5DB;
+            text-decoration: none;
+            padding: 10px 15px;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .menubar-nav a:hover { background-color: #374151; color: white; }
+        .menubar-nav a.active { background-color: var(--primary-color); color: white; }
+
+        .main-content { margin-top: 90px; padding: 30px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px;}
+        .page-header h1 { font-size: 32px; font-weight: 700; }
+        .btn { padding: 10px 20px; border: none; cursor: pointer; font-size: 15px; font-weight: 500; border-radius: 8px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background-color: var(--primary-color); color: white; } .btn-primary:hover { background-color: #4338CA; }
+        .card { background-color: var(--card-bg-color); padding: 25px; border-radius: var(--border-radius); box-shadow: var(--shadow); margin-bottom: 30px; }
+        .table-wrapper { 
+            overflow: auto;
+            max-height: 60vh;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #E5E7EB; text-align: left; white-space: nowrap;}
+        th { background-color: var(--light-color); font-weight: 600; position: sticky; top: 0; z-index: 1;}
+        td.text-center { text-align: center; }
+        .filters-container { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 25px; }
+        .filter-group { display: flex; align-items: center; gap: 10px; }
+        .filter-group label { font-weight: 500; }
+        .filter-group select { padding: 8px 12px; border-radius: 8px; border: 1px solid #D1D5DB; }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        .chart-wrapper {
+            position: relative;
+            height: 40vh;
+            min-height: 300px;
+            margin-top: 20px;
+        }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; animation: fadeIn 0.3s; }
+        .modal.show { display: flex; }
+        .modal-content { background-color: var(--card-bg-color); padding: 30px; border-radius: var(--border-radius); width: 90%; max-width: 550px; box-shadow: var(--shadow); animation: slideIn 0.3s; display: flex; flex-direction: column; max-height: 90vh; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .modal-header h3 { margin: 0; font-size: 1.3em; display: flex; align-items: center; gap: 10px; }
+        .modal-header .close { font-size: 32px; font-weight: bold; cursor: pointer; color: #aaa; transition: color 0.2s; }
+        .modal-header .close:hover { color: var(--danger-color); }
+        
+        .modal-body {
+            overflow-y: auto;
+        }
+        .modal-body .info-item {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .modal-body .info-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .modal-body .info-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-body .info-value {
+            font-size: 1em;
+            color: var(--text-color);
+            word-wrap: break-word;
+            line-height: 1.5;
+        }
+        .modal-body .info-value a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .modal-body .info-value a:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85em;
+            display: inline-block;
+            color: white;
+            text-align: center;
+        }
+        .status-badge-disetujui { background-color: var(--success-color); }
+        .status-badge-diperbaiki { background-color: var(--warning-color); }
+        .status-badge-ditolak { background-color: var(--danger-color); }
+        .status-badge-diperiksa { background-color: var(--secondary-color); }
+        .status-badge-default { background-color: #E5E7EB; color: #4B5563; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-30px); } to { transform: translateY(0); } }
+
+        .status-icon { font-size: 1.5em; cursor: pointer; transition: transform 0.2s; }
+        .status-icon:hover { transform: scale(1.2); }
+        .text-success { color: var(--success-color); }
+        .text-warning { color: var(--warning-color); }
+        .text-danger { color: var(--danger-color); }
+        .text-info { color: var(--info-color); }
+        .text-secondary { color: var(--secondary-color); }
+        .text-muted { color: #adb5bd; }
+    </style>
+</head>
+<body>
+    <header class="menubar">
+        <div class="menubar-header">
+            <h2 id="schoolNameHeader">Dashboard</h2>
+        </div>
+        <nav class="menubar-nav">
+            <a href="./" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            <a href="Kepsek.html" class="nav-link active" data-page="page-supervisi"><i class="fas fa-user-shield"></i> Kepsek</a>
+			<a href="Admin.html" class="nav-link active" data-page="page-supervisi"><i class="fas fa-user-shield"></i> Admin</a>
+			<a href="Guru.html" class="nav-link active" data-page="page-supervisi"><i class="fas fa-user-shield"></i> Guru</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1 id="pageTitle">Supervisi Guru</h1>
+        </div>
+        
+        <div id="page-supervisi" class="page active">
+            <div class="card">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="guruFilter">Filter Guru:</label>
+                        <select id="guruFilter" onchange="filterSupervisiTable()"></select>
+                    </div>
+                </div>
+            </div>
+            <div id="supervisi-content"></div>
+        </div>
+    </main>
+
+    <div id="infoModal" class="modal"><div class="modal-content"><div class="modal-header"><h3 id="infoModalTitle">Pemberitahuan</h3><span class="close" onclick="closeModal('infoModal')">&times;</span></div><div style="padding: 20px 5px;"><p id="infoModalMessage"></p></div></div></div>
+    
+    <!-- Modal Administrasi -->
+    <div id="admModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="admModalTitle">Detail Penilaian Administrasi</h3>
+                <span class="close" onclick="closeModal('admModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-link"></i> Dokumen Guru</span>
+                    <span class="info-value" id="admModalLink"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-clipboard-check"></i> Status</span>
+                    <span class="info-value" id="admModalStatus"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-comment-dots"></i> Komentar</span>
+                    <span class="info-value" id="admModalKomentar"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Supervisi -->
+    <div id="supervisiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="supervisiModalTitle">Detail Penilaian Supervisi</h3>
+                <span class="close" onclick="closeModal('supervisiModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-link"></i> Link dari Guru</span>
+                    <span class="info-value" id="supervisiModalLinks"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-calendar-alt"></i> Tanggal Pelaksanaan</span>
+                    <span class="info-value" id="supervisiModalTanggal"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-star"></i> Nilai</span>
+                    <span class="info-value" id="supervisiModalNilai"></span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label"><i class="fas fa-comment-dots"></i> Komentar</span>
+                    <span class="info-value" id="supervisiModalKomentar"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+	function _0x3d67(_0x4c77b6,_0x55cc24){const _0x3a5447=_0x3a54();return _0x3d67=function(_0x3d6792,_0x4f8ec5){_0x3d6792=_0x3d6792-0x7c;let _0x2c5f90=_0x3a5447[_0x3d6792];return _0x2c5f90;},_0x3d67(_0x4c77b6,_0x55cc24);}const _0x4cf61a=_0x3d67;function _0x3a54(){const _0x29429b=['tanggal','role','\x22\x20onclick=\x22openAdmModal(\x27','1:244455418239:web:d9fd56500f666466aa124a','get','schoolNameHeader','750173SAsGew','fas\x20fa-edit\x20text-warning','</tr></thead><tbody>','<span\x20class=\x22status-badge\x20status-badge-disetujui\x22>','aktif','<span\x20class=\x22status-badge\x20status-badge-diperiksa\x22>','href','244455418239','nilai','Memuat\x20data,\x20mohon\x20tunggu...','datasets','</th>','apps','pengaturan','supervisiModalKomentar','belum','admModalStatus','</tbody></table></div></div>','infoSekolah','supervisiModalTitle','supervisiModalTanggal','95032FucpUh','data','collection','admModalKomentar','<i\x20class=\x22fas\x20fa-file-alt\x22></i>\x20Detail:\x20','all','options','add','logo','favicon','Error','Informasi','long','firestore','Diperbaiki','id-ID','</tr>','Siap\x20dinilai','top','fas\x20fa-check-circle\x20text-success','fas\x20fa-tasks\x20text-info','status','urlDokumen','Supervisi','admModalTitle','<span\x20class=\x22status-badge\x20status-badge-default\x22>','siap','</span>','belumDiperiksa','<span\x20class=\x22status-badge\x20status-badge-diperbaiki\x22>','url','Tidak\x20ada\x20komentar.','<em>Belum\x20ada\x20link\x20dokumen.</em>','push','rgba(255,\x2099,\x20132,\x200.7)','Ditolak','</td>','Belum\x20Input','4685814tdMvTP','infoModalMessage','553eYNGyC','infoModal','Guru','docs','Sudah\x20Dinilai','dinilai','Belum\x20ada\x20link','<em>Belum\x20ada\x20link\x20foto.</em>','<span\x20class=\x22status-badge\x20status-badge-ditolak\x22>','Siap\x20Dinilai','rgba(75,\x20192,\x20192,\x200.7)','forEach','Revisi','ditolak','diperbaiki','7296984yrWXdy','onload','admModal','supervisi-content','fas\x20fa-times-circle\x20text-danger','getElementById','Sudah\x20dinilai:\x20','textContent','\x20status-icon\x22\x20title=\x22','supervisiModal','rgba(255,\x20206,\x2086,\x200.7)','\x22\x20target=\x22_blank\x22\x20rel=\x22noopener\x20noreferrer\x22>Lihat\x20Foto\x20<i\x20class=\x22fas\x20fa-external-link-alt\x20fa-xs\x22></i></a>','<tr\x20data-nip=\x22','komentar','muslim-mackbook.firebasestorage.app','Disetujui','classList','localeCompare','show','bar','<td\x20class=\x22text-center\x22><i\x20class=\x22','nip','\x27,\x20\x27','<a\x20href=\x22','value','fas\x20fa-stamp\x20text-success','<em>Guru\x20belum\x20menginput\x20link.</em>','Belum\x20dinilai.','map','<i\x20class=\x22fas\x20fa-chalkboard-teacher\x22></i>\x20Detail:\x20','supervisiSettings','Pemberitahuan','guruFilter','toLocaleDateString','rgba(153,\x20102,\x20255,\x200.7)','AIzaSyAMsXLSkmpMdcDADfj7098BWSwWBwvQjHY','sort','Perlu\x20Perbaikan','Belum\x20ditentukan.','infoModalTitle','rgba(201,\x20203,\x20207,\x200.7)','numeric','Gagal\x20memuat\x20data\x20awal:\x20','2251812EyejOF','kegiatan','27864459DvuYYj','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22charts-grid\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h5><i\x20class=\x22fas\x20fa-chart-bar\x22></i>\x20Status\x20Supervisi\x20Administrasi</h5>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22chart-wrapper\x22><canvas\x20id=\x22admChart\x22></canvas></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22card\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<h5><i\x20class=\x22fas\x20fa-chart-bar\x22></i>\x20Status\x20Supervisi\x20Kelas</h5>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22chart-wrapper\x22><canvas\x20id=\x22supervisiChart\x22></canvas></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','message','namaSekolah','urlFoto','disetujui','\x27)\x22></i></td>','5ZVJgQM','where','supervisi_guru','exists','\x22><td>','innerHTML','Belum\x20Diperiksa','fas\x20fa-exclamation-circle\x20text-muted','admChart','supervisiModalNilai','administrasi_guru','filter','admModalLink','getContext','nama','supervisiChart','\x22\x20target=\x22_blank\x22\x20rel=\x22noopener\x20noreferrer\x22>Lihat\x20Dokumen\x20<i\x20class=\x22fas\x20fa-external-link-alt\x20fa-xs\x22></i></a>','<div\x20class=\x22card\x22><h2><i\x20class=\x22fas\x20fa-chalkboard-teacher\x22></i>\x20Supervisi\x20Kelas</h2><div\x20class=\x22table-wrapper\x22><table\x20id=\x22supervisiTable\x22><thead><tr><th>Guru</th>','\x22\x20target=\x22_blank\x22\x20rel=\x22noopener\x20noreferrer\x22>','5360178vhqgRw','supervisiModalLinks','fas\x20fa-search\x20text-secondary'];_0x3a54=function(){return _0x29429b;};return _0x3a54();}(function(_0x277d03,_0x10d5fc){const _0x5e644f=_0x3d67,_0x5cd148=_0x277d03();while(!![]){try{const _0x1aea92=-parseInt(_0x5e644f(0x103))/0x1+-parseInt(_0x5e644f(0xde))/0x2+parseInt(_0x5e644f(0xa2))/0x3+-parseInt(_0x5e644f(0xb3))/0x4+-parseInt(_0x5e644f(0xe7))/0x5*(-parseInt(_0x5e644f(0xfa))/0x6)+parseInt(_0x5e644f(0xa4))/0x7*(-parseInt(_0x5e644f(0x7c))/0x8)+parseInt(_0x5e644f(0xe0))/0x9;if(_0x1aea92===_0x10d5fc)break;else _0x5cd148['push'](_0x5cd148['shift']());}catch(_0x14850d){_0x5cd148['push'](_0x5cd148['shift']());}}}(_0x3a54,0xdecca));const firebaseConfig={'apiKey':_0x4cf61a(0xd6),'authDomain':'muslim-mackbook.firebaseapp.com','projectId':'muslim-mackbook','storageBucket':_0x4cf61a(0xc1),'messagingSenderId':_0x4cf61a(0x10a),'appId':_0x4cf61a(0x100)};!firebase[_0x4cf61a(0x10f)]['length']&&firebase['initializeApp'](firebaseConfig);const db=firebase[_0x4cf61a(0x89)]();let globalSettings={},allGuruData=[],allGuruAdmData={},allGuruSupervisiData={},dataLoaded=![],chartInstances={};function openModal(_0x35ac1d){const _0x2f966e=_0x4cf61a;document[_0x2f966e(0xb8)](_0x35ac1d)[_0x2f966e(0xc3)][_0x2f966e(0x83)](_0x2f966e(0xc5));}function closeModal(_0x5cdb0a){const _0x1fb34c=_0x4cf61a;document['getElementById'](_0x5cdb0a)[_0x1fb34c(0xc3)]['remove'](_0x1fb34c(0xc5));}function showInfoModal(_0x133e30,_0x281c59=_0x4cf61a(0xd2)){const _0x5dffe7=_0x4cf61a;document[_0x5dffe7(0xb8)](_0x5dffe7(0xda))[_0x5dffe7(0xba)]=_0x281c59,document['getElementById'](_0x5dffe7(0xa3))[_0x5dffe7(0xba)]=_0x133e30,openModal(_0x5dffe7(0xa5));}window[_0x4cf61a(0xb4)]=async()=>{const _0x438123=_0x4cf61a;showInfoModal(_0x438123(0x10c),_0x438123(0x87)),await ensureDataLoaded(),renderSupervisiGuru(),closeModal('infoModal');};async function ensureDataLoaded(){const _0x4681e7=_0x4cf61a;if(dataLoaded)return;try{const _0x2336ae=await db[_0x4681e7(0x7e)](_0x4681e7(0x110))['doc']('global')[_0x4681e7(0x101)]();_0x2336ae[_0x4681e7(0xea)]&&(globalSettings=_0x2336ae[_0x4681e7(0x7d)](),globalSettings[_0x4681e7(0x115)]&&(document['title']=globalSettings[_0x4681e7(0x115)]['namaSekolah']||'Dashboard\x20Supervisi',document['getElementById'](_0x4681e7(0x102))[_0x4681e7(0xba)]=globalSettings['infoSekolah'][_0x4681e7(0xe3)]||_0x4681e7(0x93),globalSettings[_0x4681e7(0x115)][_0x4681e7(0x84)]&&(document[_0x4681e7(0xb8)](_0x4681e7(0x85))[_0x4681e7(0x109)]=globalSettings[_0x4681e7(0x115)][_0x4681e7(0x84)])));const [_0x5dcd19,_0x8f7ee6,_0x7da669]=await Promise[_0x4681e7(0x81)]([db['collection']('users')[_0x4681e7(0xe8)](_0x4681e7(0xfe),'==',_0x4681e7(0xa6))['get'](),db['collection'](_0x4681e7(0xf1))['get'](),db[_0x4681e7(0x7e)](_0x4681e7(0xe9))[_0x4681e7(0x101)]()]);allGuruData=_0x5dcd19[_0x4681e7(0xa7)][_0x4681e7(0xcf)](_0xb06833=>({'id':_0xb06833['id'],..._0xb06833['data']()})),_0x8f7ee6[_0x4681e7(0xaf)](_0x5cc7a2=>{const _0x320482=_0x4681e7;allGuruAdmData[_0x5cc7a2['id']]=_0x5cc7a2[_0x320482(0x7d)]();}),_0x7da669['forEach'](_0x54f6a2=>{allGuruSupervisiData[_0x54f6a2['id']]=_0x54f6a2['data']();});const _0x38b988=document[_0x4681e7(0xb8)](_0x4681e7(0xd3));_0x38b988[_0x4681e7(0x82)]['length']<=0x1&&(_0x38b988['innerHTML']='<option\x20value=\x22\x22>Semua\x20Guru</option>',allGuruData[_0x4681e7(0xd7)]((_0x5d4be8,_0x308ffa)=>_0x5d4be8[_0x4681e7(0xf5)][_0x4681e7(0xc4)](_0x308ffa[_0x4681e7(0xf5)]))['forEach'](_0x37740e=>_0x38b988['add'](new Option(_0x37740e[_0x4681e7(0xf5)],_0x37740e[_0x4681e7(0xc8)])))),dataLoaded=!![];}catch(_0x4644d5){showInfoModal(_0x4681e7(0xdd)+_0x4644d5[_0x4681e7(0xe2)],_0x4681e7(0x86));}}function filterSupervisiTable(){renderSupervisiGuru();}function renderSupervisiGuru(){const _0x4f4b20=_0x4cf61a,_0x1fe70d=document['getElementById'](_0x4f4b20(0xb6));_0x1fe70d['innerHTML']='<div\x20class=\x22card\x20text-center\x22><p>Memuat\x20data\x20supervisi...</p></div>';if(chartInstances['admChart'])chartInstances[_0x4f4b20(0xef)]['destroy']();if(chartInstances[_0x4f4b20(0xf6)])chartInstances[_0x4f4b20(0xf6)]['destroy']();const _0x489f3c=(globalSettings[_0x4f4b20(0xd1)]?.['administrasi']||[])[_0x4f4b20(0xf2)](_0x2de000=>_0x2de000?.[_0x4f4b20(0x107)]),_0xad965f=(globalSettings[_0x4f4b20(0xd1)]?.[_0x4f4b20(0xdf)]||[])['filter'](_0x2a8711=>_0x2a8711?.[_0x4f4b20(0x107)]),_0x3cff8f=document[_0x4f4b20(0xb8)](_0x4f4b20(0xd3))[_0x4f4b20(0xcb)],_0x3087ac=_0x3cff8f?allGuruData[_0x4f4b20(0xf2)](_0x44bb51=>_0x44bb51[_0x4f4b20(0xc8)]===_0x3cff8f):allGuruData,_0x360a0a={'labels':_0x489f3c[_0x4f4b20(0xcf)](_0xa0e455=>_0xa0e455['nama']),'datasets':[{'label':_0x4f4b20(0xc2),'data':[],'backgroundColor':_0x4f4b20(0xae)},{'label':_0x4f4b20(0x8a),'data':[],'backgroundColor':_0x4f4b20(0xbd)},{'label':_0x4f4b20(0x9f),'data':[],'backgroundColor':_0x4f4b20(0x9e)},{'label':_0x4f4b20(0xed),'data':[],'backgroundColor':_0x4f4b20(0xd5)},{'label':'Belum\x20Input','data':[],'backgroundColor':_0x4f4b20(0xdb)}]};_0x489f3c[_0x4f4b20(0xaf)](_0xc29c40=>{const _0xd0fa38=_0x4f4b20;let _0x187634={'disetujui':0x0,'diperbaiki':0x0,'ditolak':0x0,'belumDiperiksa':0x0,'belumInput':0x0};_0x3087ac[_0xd0fa38(0xaf)](_0x1c0fc2=>{const _0x49b4b3=_0xd0fa38,_0x22398d=allGuruAdmData[_0x1c0fc2['nip']]?.[_0xc29c40['id']]||{};if(!_0x22398d[_0x49b4b3(0x9a)])_0x187634['belumInput']++;else switch(_0x22398d[_0x49b4b3(0x91)]){case _0x49b4b3(0xc2):_0x187634[_0x49b4b3(0xe5)]++;break;case _0x49b4b3(0x8a):case _0x49b4b3(0xb0):_0x187634[_0x49b4b3(0xb2)]++;break;case _0x49b4b3(0x9f):_0x187634[_0x49b4b3(0xb1)]++;break;default:_0x187634[_0x49b4b3(0x98)]++;}}),_0x360a0a['datasets'][0x0][_0xd0fa38(0x7d)]['push'](_0x187634[_0xd0fa38(0xe5)]),_0x360a0a[_0xd0fa38(0x10d)][0x1][_0xd0fa38(0x7d)][_0xd0fa38(0x9d)](_0x187634[_0xd0fa38(0xb2)]),_0x360a0a[_0xd0fa38(0x10d)][0x2][_0xd0fa38(0x7d)][_0xd0fa38(0x9d)](_0x187634[_0xd0fa38(0xb1)]),_0x360a0a[_0xd0fa38(0x10d)][0x3][_0xd0fa38(0x7d)][_0xd0fa38(0x9d)](_0x187634['belumDiperiksa']),_0x360a0a['datasets'][0x4][_0xd0fa38(0x7d)][_0xd0fa38(0x9d)](_0x187634['belumInput']);});const _0x574655={'labels':_0xad965f[_0x4f4b20(0xcf)](_0x3dd768=>_0x3dd768['nama']),'datasets':[{'label':_0x4f4b20(0xa8),'data':[],'backgroundColor':_0x4f4b20(0xae)},{'label':_0x4f4b20(0xad),'data':[],'backgroundColor':'rgba(54,\x20162,\x20235,\x200.7)'},{'label':_0x4f4b20(0xa1),'data':[],'backgroundColor':_0x4f4b20(0xdb)}]};_0xad965f[_0x4f4b20(0xaf)](_0x3faccc=>{const _0x4f31e3=_0x4f4b20;let _0x3ff3df={'dinilai':0x0,'siap':0x0,'belum':0x0};_0x3087ac['forEach'](_0x177b7a=>{const _0x3be546=_0x3d67,_0x51a708=allGuruSupervisiData[_0x177b7a['nip']]?.[_0x3faccc['id']]||{};if(_0x51a708[_0x3be546(0x10b)])_0x3ff3df[_0x3be546(0xa9)]++;else _0x51a708[_0x3be546(0x92)]||_0x51a708['urlFoto']?_0x3ff3df[_0x3be546(0x96)]++:_0x3ff3df[_0x3be546(0x112)]++;}),_0x574655[_0x4f31e3(0x10d)][0x0]['data']['push'](_0x3ff3df[_0x4f31e3(0xa9)]),_0x574655[_0x4f31e3(0x10d)][0x1][_0x4f31e3(0x7d)]['push'](_0x3ff3df[_0x4f31e3(0x96)]),_0x574655[_0x4f31e3(0x10d)][0x2][_0x4f31e3(0x7d)][_0x4f31e3(0x9d)](_0x3ff3df[_0x4f31e3(0x112)]);});let _0x5d6ea4=_0x4f4b20(0xe1),_0x341625='<div\x20class=\x22card\x22><h2><i\x20class=\x22fas\x20fa-folder-open\x22></i>\x20Supervisi\x20Administrasi</h2><div\x20class=\x22table-wrapper\x22><table\x20id=\x22admTable\x22><thead><tr><th>Guru</th>';_0x489f3c[_0x4f4b20(0xaf)](_0x17d966=>{const _0x1ff983=_0x4f4b20;_0x341625+='<th>'+_0x17d966[_0x1ff983(0xf5)]+_0x1ff983(0x10e);}),_0x341625+='</tr></thead><tbody>',_0x3087ac[_0x4f4b20(0xaf)](_0x127f19=>{const _0x3496ec=_0x4f4b20;_0x341625+=_0x3496ec(0xbf)+_0x127f19[_0x3496ec(0xc8)]+_0x3496ec(0xeb)+_0x127f19[_0x3496ec(0xf5)]+_0x3496ec(0xa0);const _0x16e95d=allGuruAdmData[_0x127f19[_0x3496ec(0xc8)]]||{};_0x489f3c[_0x3496ec(0xaf)](_0x4bb863=>{const _0x4d6a88=_0x3496ec,_0x8e8666=_0x16e95d[_0x4bb863['id']]||{};let _0x177dbb=_0x4d6a88(0xee),_0x1ef866='Belum\x20ada\x20link';if(_0x8e8666[_0x4d6a88(0x9a)])switch(_0x8e8666[_0x4d6a88(0x91)]){case _0x4d6a88(0xc2):_0x177dbb=_0x4d6a88(0x8f),_0x1ef866='Disetujui';break;case _0x4d6a88(0x8a):case _0x4d6a88(0xb0):_0x177dbb=_0x4d6a88(0x104),_0x1ef866=_0x4d6a88(0xd8);break;case _0x4d6a88(0x9f):_0x177dbb=_0x4d6a88(0xb7),_0x1ef866=_0x4d6a88(0x9f);break;default:_0x177dbb=_0x4d6a88(0xfc),_0x1ef866=_0x4d6a88(0xed);}_0x341625+=_0x4d6a88(0xc7)+_0x177dbb+_0x4d6a88(0xbb)+_0x1ef866+_0x4d6a88(0xff)+_0x127f19[_0x4d6a88(0xc8)]+'\x27,\x20\x27'+_0x127f19[_0x4d6a88(0xf5)]+_0x4d6a88(0xc9)+_0x4bb863['id']+_0x4d6a88(0xc9)+_0x4bb863[_0x4d6a88(0xf5)]+_0x4d6a88(0xe6);}),_0x341625+=_0x3496ec(0x8c);}),_0x341625+='</tbody></table></div></div>';let _0x47f106=_0x4f4b20(0xf8);_0xad965f[_0x4f4b20(0xaf)](_0x18797f=>{_0x47f106+='<th>'+_0x18797f['nama']+'</th>';}),_0x47f106+=_0x4f4b20(0x105),_0x3087ac['forEach'](_0x5bc29c=>{const _0x294aa6=_0x4f4b20;_0x47f106+=_0x294aa6(0xbf)+_0x5bc29c[_0x294aa6(0xc8)]+_0x294aa6(0xeb)+_0x5bc29c['nama']+'</td>';const _0x120842=allGuruSupervisiData[_0x5bc29c[_0x294aa6(0xc8)]]||{};_0xad965f[_0x294aa6(0xaf)](_0x3c3f37=>{const _0x13e68c=_0x294aa6,_0x49edfb=_0x120842[_0x3c3f37['id']]||{};let _0x20bec5=_0x13e68c(0xee),_0x1c07e6=_0x13e68c(0xaa);(_0x49edfb[_0x13e68c(0x92)]||_0x49edfb[_0x13e68c(0xe4)])&&(_0x20bec5=_0x49edfb[_0x13e68c(0x10b)]?_0x13e68c(0xcc):_0x13e68c(0x90),_0x1c07e6=_0x49edfb[_0x13e68c(0x10b)]?_0x13e68c(0xb9)+_0x49edfb[_0x13e68c(0x10b)]:_0x13e68c(0x8d)),_0x47f106+=_0x13e68c(0xc7)+_0x20bec5+'\x20status-icon\x22\x20title=\x22'+_0x1c07e6+'\x22\x20onclick=\x22openSupervisiModal(\x27'+_0x5bc29c[_0x13e68c(0xc8)]+_0x13e68c(0xc9)+_0x5bc29c[_0x13e68c(0xf5)]+_0x13e68c(0xc9)+_0x3c3f37['id']+_0x13e68c(0xc9)+_0x3c3f37['nama']+_0x13e68c(0xe6);}),_0x47f106+=_0x294aa6(0x8c);}),_0x47f106+=_0x4f4b20(0x114),_0x1fe70d[_0x4f4b20(0xec)]=_0x5d6ea4+_0x341625+_0x47f106;const _0x1496f4=document['getElementById']('admChart')[_0x4f4b20(0xf4)]('2d');chartInstances[_0x4f4b20(0xef)]=new Chart(_0x1496f4,{'type':_0x4f4b20(0xc6),'data':_0x360a0a,'options':{'responsive':!![],'maintainAspectRatio':![],'plugins':{'legend':{'position':_0x4f4b20(0x8e)}},'scales':{'x':{'stacked':!![]},'y':{'stacked':!![],'beginAtZero':!![]}}}});const _0x10ad97=document[_0x4f4b20(0xb8)](_0x4f4b20(0xf6))[_0x4f4b20(0xf4)]('2d');chartInstances[_0x4f4b20(0xf6)]=new Chart(_0x10ad97,{'type':_0x4f4b20(0xc6),'data':_0x574655,'options':{'responsive':!![],'maintainAspectRatio':![],'plugins':{'legend':{'position':_0x4f4b20(0x8e)}},'scales':{'x':{'stacked':!![]},'y':{'stacked':!![],'beginAtZero':!![]}}}});}function openAdmModal(_0x4ef8af,_0x2a459d,_0x341583,_0x3c00ed){const _0x5c11ed=_0x4cf61a,_0x49d0fb=allGuruAdmData[_0x4ef8af]?.[_0x341583]||{},_0x3b0e21=_0x49d0fb['status']||_0x5c11ed(0xed);let _0x3184a2='';switch(_0x3b0e21){case _0x5c11ed(0xc2):_0x3184a2=_0x5c11ed(0x106)+_0x3b0e21+'</span>';break;case _0x5c11ed(0x8a):case _0x5c11ed(0xb0):_0x3184a2=_0x5c11ed(0x99)+_0x3b0e21+_0x5c11ed(0x97);break;case _0x5c11ed(0x9f):_0x3184a2=_0x5c11ed(0xac)+_0x3b0e21+_0x5c11ed(0x97);break;case _0x5c11ed(0xed):_0x3184a2=_0x5c11ed(0x108)+_0x3b0e21+'</span>';break;default:_0x3184a2=_0x5c11ed(0x95)+_0x3b0e21+'</span>';}document[_0x5c11ed(0xb8)](_0x5c11ed(0x94))[_0x5c11ed(0xec)]=_0x5c11ed(0x80)+_0x3c00ed,document[_0x5c11ed(0xb8)](_0x5c11ed(0xf3))[_0x5c11ed(0xec)]=_0x49d0fb['url']?_0x5c11ed(0xca)+_0x49d0fb[_0x5c11ed(0x9a)]+_0x5c11ed(0xf9)+_0x2a459d+'\x20<i\x20class=\x22fas\x20fa-external-link-alt\x20fa-xs\x22></i></a>':_0x5c11ed(0xcd),document[_0x5c11ed(0xb8)](_0x5c11ed(0x113))[_0x5c11ed(0xec)]=_0x3184a2,document['getElementById'](_0x5c11ed(0x7f))[_0x5c11ed(0xba)]=_0x49d0fb['komentar']||'Tidak\x20ada\x20komentar.',openModal(_0x5c11ed(0xb5));}function openSupervisiModal(_0x42ed8a,_0x1f6b06,_0xaf89a5,_0x2afe51){const _0x1e82fb=_0x4cf61a,_0xbe84fb=allGuruSupervisiData[_0x42ed8a]?.[_0xaf89a5]||{};document['getElementById'](_0x1e82fb(0x116))[_0x1e82fb(0xec)]=_0x1e82fb(0xd0)+_0x2afe51;const _0x51c0b3=_0xbe84fb[_0x1e82fb(0x92)]?_0x1e82fb(0xca)+_0xbe84fb[_0x1e82fb(0x92)]+_0x1e82fb(0xf7):_0x1e82fb(0x9c),_0x5403bb=_0xbe84fb[_0x1e82fb(0xe4)]?_0x1e82fb(0xca)+_0xbe84fb[_0x1e82fb(0xe4)]+_0x1e82fb(0xbe):_0x1e82fb(0xab);document[_0x1e82fb(0xb8)](_0x1e82fb(0xfb))[_0x1e82fb(0xec)]=_0x51c0b3+'<br>'+_0x5403bb,document[_0x1e82fb(0xb8)](_0x1e82fb(0x117))[_0x1e82fb(0xba)]=_0xbe84fb[_0x1e82fb(0xfd)]?new Date(_0xbe84fb[_0x1e82fb(0xfd)])[_0x1e82fb(0xd4)](_0x1e82fb(0x8b),{'day':'numeric','month':_0x1e82fb(0x88),'year':_0x1e82fb(0xdc)}):_0x1e82fb(0xd9),document[_0x1e82fb(0xb8)](_0x1e82fb(0xf0))[_0x1e82fb(0xba)]=_0xbe84fb['nilai']||_0x1e82fb(0xce),document['getElementById'](_0x1e82fb(0x111))[_0x1e82fb(0xba)]=_0xbe84fb[_0x1e82fb(0xc0)]||_0x1e82fb(0x9b),openModal(_0x1e82fb(0xbc));}
+    </script>
+</body>
+</html>
+

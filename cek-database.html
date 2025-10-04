@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+	<link rel="icon" type="image/x-icon" href="">
+    <title>Cek Database Firestore</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        h1 { color: #333; }
+        #output { 
+            background-color: #f4f4f4; 
+            border: 1px solid #ddd;
+            padding: 15px;
+            white-space: pre-wrap; /* Agar format JSON rapi */
+            word-wrap: break-word;
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+    <h1>Data dari Database</h1>
+    <!-- DIUBAH: Menambahkan 'laporan' dalam deskripsi -->
+    <p>Klik tombol di bawah untuk mengambil dan menampilkan semua data dari koleksi 'pengaturan', 'users', 'siswa', dan 'laporan'.</p>
+
+    <button onclick="fetchAllData()">Ambil Data Sekarang</button>
+    <button id="downloadBtn" style="display:none;" onclick="downloadData()">Download Data (.json)</button>
+    
+    <pre id="output">Data akan ditampilkan di sini...</pre>
+
+    <!-- Memuat Firebase SDK versi 8 yang kompatibel dengan kode di bawah -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+	const _0x4a5745=_0x2491;(function(_0x14a1de,_0x3f5cce){const _0x560f3a=_0x2491,_0x1e03a7=_0x14a1de();while(!![]){try{const _0x13d189=parseInt(_0x560f3a(0x9d))/0x1+parseInt(_0x560f3a(0x93))/0x2*(parseInt(_0x560f3a(0x8a))/0x3)+-parseInt(_0x560f3a(0x95))/0x4*(-parseInt(_0x560f3a(0x84))/0x5)+parseInt(_0x560f3a(0x8c))/0x6+-parseInt(_0x560f3a(0x97))/0x7+-parseInt(_0x560f3a(0x9a))/0x8+parseInt(_0x560f3a(0x94))/0x9;if(_0x13d189===_0x3f5cce)break;else _0x1e03a7['push'](_0x1e03a7['shift']());}catch(_0x1ee1cc){_0x1e03a7['push'](_0x1e03a7['shift']());}}}(_0x2c98,0x6df2c));function _0x2c98(){const _0x213900=['style','AIzaSyAMsXLSkmpMdcDADfj7098BWSwWBwvQjHY','data','Error\x20fetching\x20data:\x20','forEach','laporan','2zOZJDy','1432350tdMLLe','24644XtYLvl','downloadBtn','2783900cCjAYl','users','muslim-mackbook.firebaseapp.com','5917864WRAcbp','apps','click','305614QemPiM','download','1:244455418239:web:d9fd56500f666466aa124a','pengaturan','length','textContent','remove','display','get','muslim-mackbook.firebasestorage.app','href','all','muslim-mackbook','createElement','Mengambil\x20data,\x20mohon\x20tunggu...','data:text/json;charset=utf-8,','output','75utVPOL','database_backup.json','body','getElementById','error','stringify','917649DezMsl','initializeApp','4348314VyCars'];_0x2c98=function(){return _0x213900;};return _0x2c98();}const firebaseConfig={'apiKey':_0x4a5745(0x8e),'authDomain':_0x4a5745(0x99),'projectId':_0x4a5745(0x7f),'storageBucket':_0x4a5745(0x7c),'messagingSenderId':'244455418239','appId':_0x4a5745(0x9f)};!firebase[_0x4a5745(0x9b)][_0x4a5745(0xa1)]&&firebase[_0x4a5745(0x8b)](firebaseConfig);const db=firebase['firestore'](),outputElement=document['getElementById'](_0x4a5745(0x83));let fullData={};async function fetchCollection(_0x5cd972){const _0x2f10f2=_0x4a5745,_0x127c4d=await db['collection'](_0x5cd972)[_0x2f10f2(0xa5)](),_0x216b2a={};return _0x127c4d[_0x2f10f2(0x91)](_0xab5c0c=>{const _0x313f68=_0x2f10f2;_0x216b2a[_0xab5c0c['id']]=_0xab5c0c[_0x313f68(0x8f)]();}),_0x216b2a;}async function fetchAllData(){const _0x304d48=_0x4a5745;outputElement[_0x304d48(0xa2)]=_0x304d48(0x81);try{const [_0x13e247,_0x37b097,_0x1e3224,_0x53e7b9]=await Promise[_0x304d48(0x7e)]([fetchCollection(_0x304d48(0xa0)),fetchCollection(_0x304d48(0x98)),fetchCollection('siswa'),fetchCollection(_0x304d48(0x92))]);fullData={'pengaturan':_0x13e247,'users':_0x37b097,'siswa':_0x1e3224,'laporan':_0x53e7b9},outputElement[_0x304d48(0xa2)]=JSON[_0x304d48(0x89)](fullData,null,0x2),document[_0x304d48(0x87)](_0x304d48(0x96))[_0x304d48(0x8d)][_0x304d48(0xa4)]='inline-block';}catch(_0x4e5fd1){outputElement[_0x304d48(0xa2)]='Gagal\x20mengambil\x20data.\x20Error:\x20\x0a'+_0x4e5fd1,console[_0x304d48(0x88)](_0x304d48(0x90),_0x4e5fd1);}}function _0x2491(_0x163024,_0x12d9d9){const _0x2c9858=_0x2c98();return _0x2491=function(_0x24911d,_0x231518){_0x24911d=_0x24911d-0x7c;let _0x1d896d=_0x2c9858[_0x24911d];return _0x1d896d;},_0x2491(_0x163024,_0x12d9d9);}function downloadData(){const _0x2ac63c=_0x4a5745,_0x30961d=_0x2ac63c(0x82)+encodeURIComponent(JSON[_0x2ac63c(0x89)](fullData,null,0x2)),_0x27b457=document[_0x2ac63c(0x80)]('a');_0x27b457['setAttribute'](_0x2ac63c(0x7d),_0x30961d),_0x27b457['setAttribute'](_0x2ac63c(0x9e),_0x2ac63c(0x85)),document[_0x2ac63c(0x86)]['appendChild'](_0x27b457),_0x27b457[_0x2ac63c(0x9c)](),_0x27b457[_0x2ac63c(0xa3)]();}
+    </script>
+</body>
+</html>
+

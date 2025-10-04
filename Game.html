@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Interaktif - Pilih Game!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(135deg, #a8e063, #56ab2f);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box; /* Tambahkan ini */
+        }
+
+        .container {
+            background: linear-gradient(to right, #ffbe0b, #fb5607);
+            padding: 30px 40px;
+            border-radius: 25px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1.5s ease-out;
+            width: 100%; /* Ubah ke 100% */
+            max-width: 1400px; /* Lebarkan max-width */
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-sizing: border-box; /* Tambahkan ini */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            letter-spacing: 1px;
+            animation: bounceIn 1.2s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            color: #ffbe0b;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-grid {
+            display: grid;
+            /* Diubah menjadi 8 kolom sesuai permintaan */
+            grid-template-columns: repeat(8, 1fr); 
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            min-height: 90px; /* Sedikit lebih tinggi untuk konsistensi */
+        }
+
+        .button i {
+            margin-bottom: 8px;
+            font-size: 2em;
+            text-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .button span {
+            display: block;
+            font-size: 0.85em;
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .button:active {
+            transform: translateY(0px) scale(1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .button.color-1 { background-color: #007bff; }
+        .button.color-1:hover { background-color: #0069d9; }
+        .button.color-2 { background-color: #fd8e00; }
+        .button.color-2:hover { background-color: #e07b00; }
+        .button.color-3 { background-color: #8c52ff; }
+        .button.color-3:hover { background-color: #7b40d0; }
+        .button.color-4 { background-color: #ffc300; }
+        .button.color-4:hover { background-color: #000000; }
+        .button.color-5 { background-color: #FF0000; }
+        .button.color-5:hover { background-color: #000000; }
+        .button.color-6 { background-color: #3f51b5; }
+        .button.color-6:hover { background-color: #303f9f; }
+        .button.color-7 { background-color: #009688; }
+        .button.color-7:hover { background-color: #00796b; }
+        .button.color-8 { background-color: #cddc39; }
+        .button.color-8:hover { background-color: #afb42b; }
+        .button.color-9 { background-color: #32FF00; }
+        .button.color-9:hover { background-color: #FF0000; }
+        .button.color-10 { background-color: #607d8b; }
+        .button.color-10:hover { background-color: #455a64; }
+
+        /* Media queries untuk responsivitas grid */
+        @media (max-width: 1400px) {
+            .button-grid { grid-template-columns: repeat(6, 1fr); }
+        }
+        @media (max-width: 1024px) {
+            .button-grid { grid-template-columns: repeat(5, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .button-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+            h1 { font-size: 2.5em; }
+            .container { padding: 25px 30px; }
+            .button { min-height: 80px; }
+        }
+        @media (max-width: 576px) {
+            .button-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            h1 { font-size: 2em; }
+            p { font-size: 0.9em; }
+            .container { padding: 20px; }
+        }
+        @media (max-width: 420px) {
+            .button-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: linear-gradient(135deg, #007bff, #0056b3); padding: 30px; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); position: relative; color: white; }
+        .tombol-close { position: absolute; top: 10px; right: 15px; font-size: 24px; font-weight: bold; color: white; cursor: pointer; border: none; background: none; }
+        .profile-pic-container { perspective: 2000px; width: 100px; height: 200px; flex-shrink: 0; margin-right: 25px; display: flex; justify-content: center; align-items: center; }
+        .profile-pic-container img { transition: transform 0.1s ease-out; width: 100%; height: 100%; object-fit: cover; display: block; }
+        .social-icons .fab { transition: transform 0.3s ease, color 0.3s ease; }
+        .social-icons .fab:hover { color: #F1C40F; animation: icon-wobble 0.6s ease-in-out; }
+        @keyframes icon-wobble { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-15deg) scale(1.1); } 50% { transform: rotate(10deg) scale(1.1); } 75% { transform: rotate(-5deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
+        .modal-bg-image-profile { position: absolute; right: -2px; top: -2px; height: 100%; opacity: 0.15; pointer-events: none; z-index: 1; object-fit: cover; width: auto; }
+        .modal-main-content { position: relative; z-index: 2; display: flex; align-items: center; width: 100%; padding: 10px; box-sizing: border-box; color: white; }
+        .modal-main-content h2, .modal-main-content p { color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PILIH GAME INTERAKTIFMU!</h1>
+        <a href="./" class="home-link" title="Back"><i class="fas fa-home"></i></a>
+
+        <div class="button-grid">
+            <!-- Baris 1 -->
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/temukan-kata-1" class="button color-3"><i class="fas fa-hat-wizard"></i> <span>Temukan Kata 1</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/susun-kata-1" class="button color-3"><i class="fas fa-space-shuttle"></i> <span>Susun Kata 2</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/susun-kata-2" class="button color-3"><i class="fas fa-dragon"></i> <span>Susun Kata 3</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/jodohkan-kalimat" class="button color-3"><i class="fas fa-puzzle-piece"></i> <span>Jodohkan Kalimat</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/musisi-handal" class="button color-3"><i class="fas fa-guitar"></i> <span>Musisi Handal</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/dunia-satwa" class="button color-3"><i class="fas fa-mountain"></i> <span>Dunia Satwa</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/menjodohkan-kata" class="button color-3"><i class="fas fa-dungeon"></i> <span>Menjodohkan Gambar</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/mewarnai" class="button color-3"><i class="fas fa-palette"></i> <span>Mewarnai</span></a>
+                      
+            <!-- Baris 2 -->
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/bangun-datar-1" class="button color-3"><i class="fas fa-windows"></i> <span>Bangun Datar</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/aku-hebat-kamu-hebat" class="button color-3"><i class="fas fa-plane"></i> <span>Book Interaktif 1</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/kebutuhan-keinginan" class="button color-3"><i class="fas fa-moon"></i> <span>Butuh Ingin</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/pancasila-1" class="button color-3"><i class="fas fa-star"></i> <span>Sila Pancasila</span></a>
+            <button class="tombol-buka-profil button color-1"><i class="fas fa-plane"></i> <span>Simulasi Penerbangan</span></button>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/bangun-datar-1" class="button color-3"><i class="fas fa-shield-alt"></i> <span>Kebutuhan Keinginan</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-rendah/tanggung-jawab" class="button color-1"><i class="fas fa-people-carry"></i> <span>Tanggung Jawabku</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-rendah/habitat" class="button color-1"><i class="fas fa-paw"></i> <span>Habitat</span></a>
+
+			<!-- Baris 3 -->
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/uang1" class="button color-4"><i class="fas fa-money-bill-alt"></i> <span>Kartal Giral Digital</span></a>			
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/sang-ekonom" class="button color-4"><i class="fas fa-city"></i> <span>Sang Ekonom</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/magnetik" class="button color-4"><i class="fas fa-star"></i> <span>Magnetik</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/benda-1" class="button color-4"><i class="fas fa-star"></i> <span>Wujud Benda</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/wilayah-indonesia-1" class="button color-4"><i class="fas fa-map"></i> <span>Zona Wilayah 1</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/wilayah-indonesia-2" class="button color-4"><i class="fas fa-map"></i> <span>Zona Wilayah 2</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/piktogram" class="button color-4"><i class="fas fa-book"></i> <span>Piktogram</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/tka" class="button color-4"><i class="fas fa-trophy"></i> <span>TKA</span></a>
+
+                        
+            <!-- Baris 4 -->
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/hak-dan-kewajiban" class="button color-9"><i class="fas fa-people-carry"></i> <span>Hak dan Kewajiban</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/rantai-makanan" class="button color-9"><i class="fas fa-mask"></i> <span>Rantai Makanan</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/majas-misterius" class="button color-9"><i class="fas fa-car-alt"></i> <span>Majas Misterius</span></a>			
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/biotik-abiotik-1" class="button color-9"><i class="fas fa-football-ball"></i> <span>Biotik Abiotik</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/ciri-hewan" class="button color-9"><i class="fas fa-spider"></i> <span>Ciri Hewan</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/tumbuhan-dan-cirinya" class="button color-9"><i class="fas fa-spider"></i> <span>Ciri Tumbuhan</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/kelas-tinggi/sejarawan" class="button color-9"><i class="fas fa-tree"></i> <span>Proklamasi 1</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/ukjk" class="button color-9"><i class="fas fa-desktop"></i> <span>UKJK</span></a>
+                        
+            <!-- Baris 5 -->
+			<a href="https://sites.google.com/view/bangbinedu/duel/majas-misterius" class="button color-5"><i class="fas fa-robot"></i> <span>Duel 1</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/duel/versus-2-uang" class="button color-5"><i class="fas fa-gem"></i> <span>Duel Uang</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/duel/versus-3-hitung" class="button color-5"><i class="fas fa-chess"></i> <span>Duel Hitung</span></a>
+			<a href="https://sites.google.com/view/bangbinedu/duel/susun-kata"  class="button color-5"><i class="fas fa-leaf"></i> <span>Duel Susun Kata</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/duel/tangkap-buah"  class="button color-5"><i class="fas fa-ship"></i> <span>Duel Tangkap Buah</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/duel/kebutuhan-dan-keinginan"  class="button color-5"><i class="fas fa-bolt"></i> <span>Duel Butuh Ingin</span></a>
+            <a href="https://sites.google.com/view/bangbinedu/duel/duel-biotik"  class="button color-5"><i class="fas fa-bolt"></i> <span>Duel Biotik</span></a>
+            <button class="tombol-buka-profil button color-5"><i class="fas fa-chess"></i> <span>Duel 8</span></button>
+
+        </div>
+    </div>
+
+    <div id="modalSederhana" class="modal-overlay">
+        <div class="modal-content">
+			<div class="modal-main-content">
+                <div class="profile-pic-container">
+                    <img src="https://lh3.googleusercontent.com/d/1tFGMHXxFlkz5Ij0nHbxddt4aF-MfnTio" alt="Foto Profil">
+                </div>
+                <div class="profile-text" style="text-align: left; flex-grow: 1;">
+                    <h2 style="margin: 0; font-size: 1.5em; border:none; padding:0; text-shadow: none;">SEGERA HADIR</h2>
+                    <p style="margin: 5px 0; font-size: 0.9em;">NANTIKAN PERMAINAN SERU LAINNYA!</p>
+                    <p style="margin: 10px 0 5px 0; font-weight: bold; font-size: 0.9em;">Kontak:</p>
+                    <div class="social-icons" style="font-size: 1.8em; display: flex; gap: 15px;">
+                        <a href="https://www.facebook.com/bintang.a.permana.1/" target="_blank" style="color: #1877F2; text-decoration: none;"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.youtube.com/@Bangbin_1" target="_blank" style="color: #FF0000; text-decoration: none;"><i class="fab fa-youtube"></i></a>
+                        <a href="https://wa.me/6281310051985" target="_blank" style="color: #25D366; text-decoration: none;"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+            </div>
+            <img src="https://lh3.googleusercontent.com/d/1ivUN8B8xdd4R8Kef_-wEqNx56_eeUv4w" alt="Background" class="modal-bg-image-profile">
+            <button class="tombol-close">&times;</button>
+        </div>
+	</div>	
+
+
+<script>
+    const semuaTombolBuka = document.querySelectorAll('.tombol-buka-profil');
+    const tombolClose = document.querySelector('.tombol-close');
+    const modalOverlay = document.getElementById('modalSederhana');
+
+    const bukaModal = function() {
+        modalOverlay.classList.add('active');
+    }
+
+    const tutupModal = function() {
+        modalOverlay.classList.remove('active');
+    }
+
+    semuaTombolBuka.forEach(function(tombol) {
+        tombol.addEventListener('click', bukaModal);
+    });
+
+    tombolClose.addEventListener('click', tutupModal);
+    
+    modalOverlay.addEventListener('click', function(event) {
+        if (event.target === modalOverlay) {
+            tutupModal();
+        }
+    });
+
+    const profilModal = document.getElementById('modalSederhana');	
+    const profilePicContainer = profilModal.querySelector('.profile-pic-container');
+
+    if (profilePicContainer) {
+        const profilePic = profilePicContainer.querySelector('img');
+        const maxRotate = 25;
+
+        profilePicContainer.addEventListener('mousemove', (e) => {
+            const rect = profilePicContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            const rotateY = ((mouseX / rect.width) - 0.5) * 2 * maxRotate;	
+            const rotateX = (((mouseY / rect.height) - 0.5) * 2 * maxRotate) * -1;
+            
+            profilePic.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
+        });
+
+        profilePicContainer.addEventListener('mouseleave', () => {
+            profilePic.style.transform = 'rotateX(0deg) rotateY(0deg) scale(1)';
+        });
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" type="image/x-icon" href="https://kemendikdasmen.go.id/web/image/website/21/favicon?unique=c3563e4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Dashboard Siswa</title>
+<style>
+    /* === PALET WARNA & VARIABEL === */
+    :root {
+        --primary-color: #6366F1; /* Indigo 500 */
+        --secondary-color: #14B8A6; /* Teal 500 */
+        --accent-color: #F472B6; /* Pink 400 */
+        --text-color: #111827; /* Gray 900 */
+        --text-muted: #6B7280; /* Gray 500 */
+        --bg-color: #F9FAFB; /* Gray 50 - sebagai fallback */
+        --card-bg: #FFFFFF;
+        --border-color: #E5E7EB; /* Gray 200 */
+        --font-family: 'Inter', sans-serif;
+    }
+
+    /* === ANIMASI & KEYFRAMES === */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes popIn {
+        0% { transform: scale(0.9); opacity: 0; }
+        80% { transform: scale(1.05); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes animatedGradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* === LATAR BELAKANG & PRELOADER === */
+    body {
+        font-family: var(--font-family);
+        color: var(--text-color);
+        margin: 0;
+        overflow-x: hidden;
+        background: linear-gradient(135deg, #fce38a, #f38181, #95e1d3, #eaffd0);
+        background-size: 400% 400%;
+        animation: animatedGradient 25s ease infinite;
+    }
+    
+    #preloader {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #fff;
+        display: flex; justify-content: center; align-items: center;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+    }
+    #preloader.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+        width: 50px; height: 50px;
+        border: 4px solid var(--border-color);
+        border-top-color: var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* === LOGIN CONTAINER (BARU) === */
+    #login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    .login-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 450px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        text-align: center;
+        animation: fadeInUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+    .login-card h2 {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        color: var(--text-color);
+    }
+    .login-card p {
+        color: var(--text-muted);
+        font-size: 16px;
+        margin-bottom: 30px;
+    }
+    #loginForm .form-group {
+        margin-bottom: 25px;
+    }
+    #loginForm .submit-button {
+        margin-top: 10px;
+    }
+
+    /* === HEADER UTAMA === */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 40px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        animation: fadeIn 0.5s ease-out;
+    }
+    .page-header h1 {
+        font-size: 20px; font-weight: 600; margin: 0; color: var(--text-color);
+    }
+    #logoutButton {
+        display: flex; align-items: center; gap: 8px; padding: 10px 20px; background: transparent;
+        border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-muted);
+        text-decoration: none; font-weight: 500; transition: all 0.3s ease;
+    }
+    #logoutButton:hover {
+        background: var(--accent-color); color: white; border-color: var(--accent-color);
+        transform: translateY(-2px);
+    }
+    
+    /* === CONTAINER UTAMA === */
+    .container {
+        max-width: 850px; margin: 0 auto; padding: 30px;
+        opacity: 0; transition: opacity 0.5s ease;
+    }
+    .container.loaded { opacity: 1; }
+
+    /* === KARTU PROFIL & FORM === */
+    .card {
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(5px);
+        border-radius: 20px; padding: 30px; border: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 25px; opacity: 0;
+        animation: fadeInUp 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.12);
+    }
+    .profile-header { animation-delay: 0.2s; }
+    .form-container { animation-delay: 0.4s; }
+    .welcome-card h2 {
+        font-size: 28px; font-weight: 700; line-height: 1.3; margin: 0 0 10px 0;
+        color: var(--text-color);
+    }
+    #nama-siswa-display {
+        background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .welcome-card p {
+        color: var(--text-muted); font-size: 16px; margin: 0 0 25px 0;
+    }
+    .info-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;
+    }
+    .info-item {
+        background: rgba(249, 250, 251, 0.7); padding: 15px; border-radius: 12px;
+        border: 1px solid var(--border-color); opacity: 0;
+        animation: popIn 0.5s ease-out forwards;
+    }
+    .info-item:nth-child(1) { animation-delay: 0.5s; }
+    .info-item:nth-child(2) { animation-delay: 0.6s; }
+    .info-item:nth-child(3) { animation-delay: 0.7s; }
+    .info-item:nth-child(4) { animation-delay: 0.8s; }
+    .info-label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+    .info-value { font-weight: 600; font-size: 15px; color: var(--text-color); }
+    
+    /* === FORM MODERN === */
+    .form-container h3 {
+        font-size: 22px; font-weight: 700; margin: 0 0 25px 0; display: flex; align-items: center; gap: 12px;
+        color: var(--text-color);
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group.full-width { grid-column: 1 / -1; }
+    .form-group { position: relative; }
+    .form-group > label {
+        position: absolute; top: 15px; left: 15px;
+        color: var(--text-muted); pointer-events: none;
+        transition: all 0.3s ease; padding: 0 5px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%; padding: 15px; box-sizing: border-box;
+        border: 1px solid var(--border-color); border-radius: 8px;
+        background: var(--card-bg); color: var(--text-color);
+        font-size: 14px; transition: all 0.3s ease;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        outline: none; border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+    .form-group input:focus + label, .form-group input:not(:placeholder-shown) + label,
+    .form-group textarea:focus + label, .form-group textarea:not(:placeholder-shown) + label,
+    .form-group select:not([value=""]) + label {
+        top: -10px; left: 10px; font-size: 12px; color: var(--primary-color);
+        background: var(--card-bg);
+    }
+    .form-group input[type="date"] + label, .form-group input[type="time"] + label {
+        top: -10px; left: 10px; font-size: 12px;
+        color: var(--text-muted); background: var(--card-bg);
+    }
+    .form-group input[type="date"]:focus + label, .form-group input[type="time"]:focus + label {
+        color: var(--primary-color);
+    }
+    .checkbox-group { 
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; 
+    }
+    .checkbox-group input { display: none; }
+    .checkbox-group .food-card {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        padding: 10px; border: 2px solid var(--border-color); border-radius: 12px; 
+        cursor: pointer; transition: all 0.3s ease; background: rgba(249, 250, 251, 0.7);
+        text-align: center; min-height: 50px;
+    }
+    .checkbox-group .food-card:hover { transform: translateY(-5px); border-color: var(--primary-color); }
+    .checkbox-group .food-card i {
+        font-size: 32px; width: 32px; height: 32px; display: flex; align-items: center;
+        justify-content: center; margin-bottom: 12px; color: var(--text-muted);
+        transition: all 0.3s ease;
+    }
+    .checkbox-group .food-card span {
+        font-weight: 500; font-size: 14px; color: var(--text-muted); transition: all 0.3s ease;
+    }
+    .checkbox-group input:checked + .food-card {
+        background: rgba(20, 184, 166, 0.1); border-color: var(--secondary-color);
+        box-shadow: 0 0 20px rgba(20, 184, 166, 0.2);
+        transform: translateY(-5px) scale(1.03);
+    }
+    .checkbox-group input:checked + .food-card i {
+        color: var(--secondary-color); transform: scale(1.1) rotate(-10deg);
+    }
+    .checkbox-group input:checked + .food-card span {
+        color: #047857; font-weight: 600;
+    }
+    
+    /* TOMBOL FULL-WIDTH */
+    .form-actions { grid-column: 1 / -1; margin-top: 15px; }
+    .submit-button {
+        width: 100%; background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+        color: white; padding: 16px 30px; border: none; border-radius: 8px;
+        font-size: 16px; font-weight: 600; letter-spacing: 0.5px;
+        cursor: pointer; transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+    }
+    .submit-button:hover {
+        transform: translateY(-3px); box-shadow: 0 7px 25px rgba(99, 102, 241, 0.4);
+    }
+    .submit-button:active {
+        transform: translateY(-1px) scale(0.98); box-shadow: 0 2px 15px rgba(99, 102, 241, 0.3);
+    }
+    .submit-button:disabled {
+        background: #9CA3AF; cursor: not-allowed; box-shadow: none; transform: none;
+    }
+    
+    /* MODAL */
+    .modal {
+        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(17, 24, 39, 0.6); backdrop-filter: blur(5px); animation: fadeIn 0.3s;
+    }
+    .modal-content {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: var(--card-bg); padding: 30px; border-radius: 16px; width: 90%; max-width: 400px;
+        text-align: center; border: 1px solid var(--border-color);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-content .close {
+        position: absolute; top: 15px; right: 15px; color: var(--text-muted);
+        font-size: 28px; font-weight: bold; transition: all 0.2s;
+    }
+    .modal-content .close:hover { color: var(--text-color); transform: rotate(90deg); cursor: pointer; }
+    #messageModalButtons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .ibadah-form-group { display: none; }
+
+    /* CHECKLIST RINCIAN */
+    .checklist-container {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px; padding-top: 10px;
+    }
+    .checklist-option {
+        display: flex; align-items: center; gap: 12px; background-color: rgba(249, 250, 251, 0.7);
+        padding: 12px; border-radius: 8px; border: 1px solid var(--border-color);
+        cursor: pointer; transition: all 0.2s ease-in-out;
+    }
+     .checklist-option:hover {
+        background-color: rgba(243, 244, 246, 0.9); border-color: var(--primary-color);
+     }
+    .checklist-option input[type="checkbox"] {
+        width: 1.2em; height: 1.2em; accent-color: var(--primary-color); cursor: pointer;
+    }
+    .checklist-option label {
+        color: var(--text-color); font-weight: 500; flex-grow: 1; cursor: pointer;
+    }
+    .lainnya-text-input {
+        width: 100%; padding: 12px; box-sizing: border-box; margin-top: 10px;
+        border: 1px solid var(--border-color); border-radius: 8px; background: var(--card-bg);
+        color: var(--text-color); font-size: 14px; transition: all 0.3s ease;
+        display: none; /* Sembunyi secara default */
+    }
+    .lainnya-text-input:focus {
+        outline: none; border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .page-header { padding: 15px 20px; }
+        .container { padding: 20px 15px; }
+        .form-grid { grid-template-columns: 1fr; }
+    }
+</style>
+</head>
+<body>
+    <div id="preloader"><div class="spinner"></div></div>
+    
+    <!-- Login Container -->
+    <div id="login-container">
+        <div class="login-card">
+            <h2>Login Siswa</h2>
+            <p>Silakan masukkan Nomor Induk Anda untuk melanjutkan.</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="nomorInduk" placeholder=" " required autocomplete="off">
+                    <label for="nomorInduk">Nomor Induk</label>
+                </div>
+                <button type="submit" id="loginButton" class="submit-button">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Container (Initially Hidden) -->
+    <div id="dashboard-container" style="display: none;">
+        <header class="page-header">
+            <h1>Laporan Harian Siswa</h1>
+            <a href="#" id="logoutButton">Logout<i class="fa-solid fa-right-from-bracket" style="font-size: 16px;"></i></a>
+        </header>
+
+        <div class="container">
+            <div class="profile-header card">
+                <div class="welcome-card">
+                    <h2>Selamat Datang, <span id="nama-siswa-display">Memuat...</span></h2>
+                    <p>Lengkapi laporan harianmu untuk mencatat perkembanganmu.</p>
+                </div>
+                <div id="studentInfoContainer" class="info-grid">
+                     <div class="info-item"><span class="info-label">No. Induk</span> <span class="info-value">Memuat...</span></div>
+                     <div class="info-item"><span class="info-label">Kelas</span> <span class="info-value">Memuat...</span></div>
+                     <div class="info-item"><span class="info-label">Agama</span> <span class="info-value">Memuat...</span></div>
+                </div>
+            </div>
+
+            <div class="form-container card">
+                <h3><i class="fa-solid fa-pen-to-square"></i>Formulir Laporan</h3>
+                <form id="activityForm">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <input type="date" id="tanggalKegiatan" required>
+                            <label for="tanggalKegiatan">Tanggal Kegiatan</label>
+                        </div>
+
+                        <div class="form-group full-width">
+                             <label style="position: static; margin-bottom: 15px; font-size: 14px; color: var(--text-muted);">Laporan Ibadah Harian</label>
+                            <div class="form-grid" style="gap: 15px;">
+                                <div class="form-group ibadah-form-group" id="ibadah-container-1"><select id="ibadah1" value=""><option value="" disabled selected></option></select><label for="ibadah1">Ibadah 1</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-2"><select id="ibadah2" value=""><option value="" disabled selected></option></select><label for="ibadah2">Ibadah 2</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-3"><select id="ibadah3" value=""><option value="" disabled selected></option></select><label for="ibadah3">Ibadah 3</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-4"><select id="ibadah4" value=""><option value="" disabled selected></option></select><label for="ibadah4">Ibadah 4</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-5"><select id="ibadah5" value=""><option value="" disabled selected></option></select><label for="ibadah5">Ibadah 5</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-6"><select id="ibadah6" value=""><option value="" disabled selected></option></select><label for="ibadah6">Ibadah 6</label></div>
+                                <div class="form-group ibadah-form-group" id="ibadah-container-7"><select id="ibadah7" value=""><option value="" disabled selected></option></select><label for="ibadah7">Ibadah 7</label></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="time" id="bangunPagi" required>
+                            <label for="bangunPagi">Jam Bangun Pagi</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="time" id="tidurCepat" required>
+                            <label for="tidurCepat">Jam Tidur Cepat</label>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label style="position: static; font-weight:500; color: var(--text-muted); font-size: 14px; display: block;">Kegiatan Olahraga</label>
+                            <div class="checklist-container" id="olahraga-checklist">
+                                <div class="checklist-option"><input type="checkbox" id="olahraga1" name="rincianOlahraga" value="Senam"><label for="olahraga1">Senam</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga2" name="rincianOlahraga" value="Bersepeda"><label for="olahraga2">Bersepeda</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga3" name="rincianOlahraga" value="Lari"><label for="olahraga3">Lari</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga4" name="rincianOlahraga" value="Renang"><label for="olahraga4">Renang</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga5" name="rincianOlahraga" value="Bulu Tangkis"><label for="olahraga5">Bulu Tangkis</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga6" name="rincianOlahraga" value="Sepak Bola"><label for="olahraga6">Sepak Bola</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga7" name="rincianOlahraga" value="Karate/Silat"><label for="olahraga7">Karate/Silat</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahraga8" name="rincianOlahraga" value="Melakukan peregangan sebelum mandi"><label for="olahraga8">Peregangan sebelum mandi</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="olahragaLainnyaCheck" name="rincianOlahraga" value="Lainnya"><label for="olahragaLainnyaCheck">Lainnya</label></div>
+                            </div>
+                            <input type="text" id="olahragaLainnyaText" class="lainnya-text-input" placeholder="Tuliskan kegiatan olahraga lain...">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label style="position: static; font-weight:500; color: var(--text-muted); font-size: 14px; display: block;">Kegiatan Bermasyarakat</label>
+                            <div class="checklist-container" id="bermasyarakat-checklist">
+                                <div class="checklist-option"><input type="checkbox" id="masyarakat1" name="rincianBermasyarakat" value="Bermain bersama teman"><label for="masyarakat1">Bermain bersama teman</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="masyarakat2" name="rincianBermasyarakat" value="Membantu orang tua di rumah"><label for="masyarakat2">Membantu orang tua di rumah</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="masyarakat3" name="rincianBermasyarakat" value="Belajar kelompok bersama teman"><label for="masyarakat3">Belajar kelompok bersama teman</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="masyarakat4" name="rincianBermasyarakat" value="Membersihkan lingkungan rumah"><label for="masyarakat4">Membersihkan lingkungan rumah</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="masyarakat5" name="rincianBermasyarakat" value="Menolong teman"><label for="masyarakat5">Menolong teman</label></div>
+                                <div class="checklist-option"><input type="checkbox" id="masyarakatLainnyaCheck" name="rincianBermasyarakat" value="Lainnya"><label for="masyarakatLainnyaCheck">Lainnya</label></div>
+                            </div>
+                            <input type="text" id="masyarakatLainnyaText" class="lainnya-text-input" placeholder="Tuliskan kegiatan bermasyarakat lain...">
+                        </div>
+
+                        <div class="form-group full-width"><input type="text" id="belajarTempat" placeholder=" "><label for="belajarTempat">Tempat Belajar</label></div>
+                        <div class="form-group full-width"><textarea id="belajarApa" placeholder=" " rows="3"></textarea><label for="belajarApa">Materi yang Dipelajari</label></div>
+                        
+                        <div class="form-group full-width">
+                            <label style="position: static; font-weight:500; color: var(--text-muted); font-size: 14px; margin-bottom: 15px; display: block;">Laporan Makanan Sehat</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="makananKarbo" value="Karbo"><label for="makananKarbo" class="food-card"><i class="fa-solid fa-bowl-rice"></i><span>Karbo</span></label>
+                                <input type="checkbox" id="makananSayur" value="Sayur/Buah"><label for="makananSayur" class="food-card"><i class="fa-solid fa-carrot"></i><span>Sayur/Buah</span></label>
+                                <input type="checkbox" id="makananSusu" value="Susu"><label for="makananSusu" class="food-card"><i class="fa-solid fa-mug-saucer"></i><span>Susu</span></label>
+                                <input type="checkbox" id="makananLauk" value="Protein"><label for="makananLauk" class="food-card"><i class="fa-solid fa-drumstick-bite"></i><span>Lauk Pauk</span></label>
+                                <input type="checkbox" id="makananAir" value="Air Putih"><label for="makananAir" class="food-card"><i class="fa-solid fa-glass-water"></i><span>Air Putih</span></label>                            
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions full-width">
+                            <button type="submit" id="submitActivity" class="submit-button">Kirim Laporan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">×</span>
+            <h3 id="messageModalTitle"></h3>
+            <p id="messageModalText" style="color: var(--text-muted);"></p>
+            <div id="messageModalButtons">
+                <button onclick="closeModal()" class="submit-button" style="margin: 0; width: auto; padding: 12px 30px;">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Memuat Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+    <script>
+	const _0x130e2f=_0x1d0b;(function(_0xa56029,_0x487b69){const _0x5498c7=_0x1d0b,_0x48d827=_0xa56029();while(!![]){try{const _0x4e2800=parseInt(_0x5498c7(0xf2))/0x1+-parseInt(_0x5498c7(0x119))/0x2+parseInt(_0x5498c7(0xe4))/0x3+-parseInt(_0x5498c7(0xf3))/0x4*(parseInt(_0x5498c7(0x11d))/0x5)+parseInt(_0x5498c7(0x11e))/0x6*(-parseInt(_0x5498c7(0xfe))/0x7)+parseInt(_0x5498c7(0x121))/0x8*(parseInt(_0x5498c7(0xfa))/0x9)+-parseInt(_0x5498c7(0xcd))/0xa*(-parseInt(_0x5498c7(0xc2))/0xb);if(_0x4e2800===_0x487b69)break;else _0x48d827['push'](_0x48d827['shift']());}catch(_0x2bc3d6){_0x48d827['push'](_0x48d827['shift']());}}}(_0x571a,0xcfe98));const firebaseConfig={'apiKey':_0x130e2f(0xea),'authDomain':_0x130e2f(0x120),'projectId':_0x130e2f(0xfb),'storageBucket':_0x130e2f(0x10e),'messagingSenderId':_0x130e2f(0x11a),'appId':'1:244455418239:web:d9fd56500f666466aa124a'};!firebase['apps'][_0x130e2f(0x118)]&&firebase['initializeApp'](firebaseConfig);const db=firebase[_0x130e2f(0x108)]();let currentStudentData={};const messageModal=document[_0x130e2f(0xec)](_0x130e2f(0xdc));let onModalConfirm=null;const preloader=document[_0x130e2f(0xec)](_0x130e2f(0x127)),loginContainer=document['getElementById']('login-container'),dashboardContainer=document[_0x130e2f(0xec)](_0x130e2f(0xd3)),loginForm=document[_0x130e2f(0xec)](_0x130e2f(0xca)),loginButton=document['getElementById'](_0x130e2f(0xb5));function _0x1d0b(_0xe96d3e,_0x5be4e5){const _0x571a46=_0x571a();return _0x1d0b=function(_0x1d0bc3,_0x2c95e0){_0x1d0bc3=_0x1d0bc3-0xb4;let _0x2a6e6f=_0x571a46[_0x1d0bc3];return _0x2a6e6f;},_0x1d0b(_0xe96d3e,_0x5be4e5);}function showMessage(_0x393f16,_0x37a1a7='Pemberitahuan',_0x50c757=null){const _0x5a68dc=_0x130e2f;document[_0x5a68dc(0xec)](_0x5a68dc(0x116))['textContent']=_0x37a1a7,document[_0x5a68dc(0xec)]('messageModalText')[_0x5a68dc(0x126)]=_0x393f16,onModalConfirm=_0x50c757,messageModal[_0x5a68dc(0xeb)][_0x5a68dc(0xcc)]='block';}function closeModal(){const _0x3f4d9f=_0x130e2f;messageModal[_0x3f4d9f(0xeb)][_0x3f4d9f(0xcc)]=_0x3f4d9f(0x10b),onModalConfirm&&(onModalConfirm(),onModalConfirm=null);}window['onclick']=_0x227302=>{const _0x35d918=_0x130e2f;if(_0x227302[_0x35d918(0xc9)]==messageModal)closeModal();},document['querySelectorAll'](_0x130e2f(0x122))[_0x130e2f(0x11b)](_0x390eaa=>{const _0x44cb20=_0x130e2f;_0x390eaa['addEventListener'](_0x44cb20(0xdb),function(){const _0x553394=_0x44cb20;this[_0x553394(0xd4)](_0x553394(0x100),this[_0x553394(0x100)]===''?'':this[_0x553394(0x100)]);});});async function loadIbadahDropdownOptions(){const _0x217f40=_0x130e2f;try{const _0x1efb99=db[_0x217f40(0xd1)](_0x217f40(0x105))[_0x217f40(0xc4)](_0x217f40(0x125)),_0xddac3d=await _0x1efb99[_0x217f40(0xe1)]();if(_0xddac3d[_0x217f40(0x101)]){const _0x5e5bbf=_0xddac3d[_0x217f40(0x112)](),_0x4b0448=_0x5e5bbf[_0x217f40(0xba)]||[],_0x52026a=_0x5e5bbf[_0x217f40(0xbe)]||{};for(let _0x117d38=0x1;_0x117d38<=0x7;_0x117d38++){const _0x4f6c72=document['getElementById'](_0x217f40(0x104)+_0x117d38);if(_0x4b0448&&_0x4b0448[_0x117d38-0x1]===!![]){_0x4f6c72[_0x217f40(0xeb)][_0x217f40(0xcc)]=_0x217f40(0xe6);const _0x35da16=document[_0x217f40(0xec)](_0x217f40(0xf7)+_0x117d38);_0x35da16[_0x217f40(0xbc)]=_0x217f40(0xe2);const _0x3b0313=_0x52026a['ibadah'+_0x117d38]||[];_0x3b0313[_0x217f40(0x11b)](_0x1c7b2d=>{const _0x34263a=_0x217f40,_0x41df0f=document[_0x34263a(0xb4)](_0x34263a(0xbf));_0x41df0f[_0x34263a(0x100)]=_0x1c7b2d,_0x41df0f[_0x34263a(0x126)]=_0x1c7b2d,_0x35da16[_0x34263a(0xe3)](_0x41df0f);});}}}else console['error'](_0x217f40(0x12e));}catch(_0x4a5ff0){console[_0x217f40(0x10a)]('Error\x20saat\x20memuat\x20dropdown\x20ibadah:',_0x4a5ff0);}}function _0x571a(){const _0x29b6e2=['olahragaLainnyaCheck','get','<option\x20value=\x22\x22\x20disabled\x20selected></option>','appendChild','4253616FTWfkM','FieldValue','block','serverTimestamp','addEventListener','hidden','AIzaSyAMsXLSkmpMdcDADfj7098BWSwWBwvQjHY','style','getElementById','Error!','<button\x20onclick=\x22closeModal()\x22\x20class=\x22submit-button\x22\x20style=\x22margin:\x200;\x20width:\x20auto;\x20padding:\x2012px\x2030px;\x22>OK</button>','reset','nomorIndukSiswa','olahragaLainnyaText','650999sMkQQl','16360VgObiU','from','Nomor\x20Induk\x20tidak\x20boleh\x20kosong.','tanggalKegiatan','ibadah','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20','agama','283329RcJGhb','muslim-mackbook','catch','Error','420ncgbHk','nomorInduk','value','exists','Logout','limit','ibadah-container-','pengaturan','then','tidurCepat','firestore','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22info-item\x22><span\x20class=\x22info-label\x22>Agama</span>\x20<span\x20class=\x22info-value\x22>','error','none','trim','makananSusu','muslim-mackbook.firebasestorage.app','kelas','Login\x20Gagal:\x20Nomor\x20Induk\x20tidak\x20ditemukan.','checked','data','preventDefault','makananAir','onload','messageModalTitle','studentInfoContainer','length','1442902KeVKye','244455418239','forEach','clear','605HcnTpY','23460MmdwMq','rincianOlahraga','muslim-mackbook.firebaseapp.com','24tZKjat','.form-group\x20select','makananLauk','laporan','global','textContent','preloader','messageModalButtons','remove','</span></div>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22info-item\x22><span\x20class=\x22info-label\x22>Kelas</span>\x20<span\x20class=\x22info-value\x22>','rincianBermasyarakat','masyarakatLainnyaText','setItem','Gagal\x20memuat\x20pengaturan:\x20Dokumen\x20global\x20tidak\x20ditemukan.','bangunPagi','contains','click','createElement','loginButton','masyarakatLainnyaCheck','Login\x20error:','\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<div\x20class=\x22info-item\x22><span\x20class=\x22info-label\x22>No.\x20Induk</span>\x20<span\x20class=\x22info-value\x22>','Terjadi\x20kesalahan.\x20Gagal\x20menyimpan\x20laporan.','ibadahSettings','nama-siswa-display','innerHTML','docs','ibadahOptions','option','message','add','1531585xUWCWB','makananSayur','doc','activityForm','querySelector','logoutButton','empty','target','loginForm','getItem','display','10ZaDAUv','Login','push','location','collection','input[name=\x22','dashboard-container','setAttribute','finally','querySelectorAll','Kirim\x20Laporan','join','Peringatan','Terjadi\x20kesalahan\x20saat\x20mencoba\x20login.','change','messageModal','disabled','nama','classList'];_0x571a=function(){return _0x29b6e2;};return _0x571a();}function showDashboard(_0x1b88d9){const _0x3bf38f=_0x130e2f;currentStudentData=_0x1b88d9,loginContainer[_0x3bf38f(0xeb)][_0x3bf38f(0xcc)]=_0x3bf38f(0x10b),dashboardContainer[_0x3bf38f(0xeb)]['display']=_0x3bf38f(0xe6),document['getElementById'](_0x3bf38f(0xbb))[_0x3bf38f(0x126)]=currentStudentData[_0x3bf38f(0xde)];const _0x557978=document[_0x3bf38f(0xec)](_0x3bf38f(0x117));_0x557978[_0x3bf38f(0xbc)]=_0x3bf38f(0xb8)+currentStudentData['induk']+_0x3bf38f(0x12a)+currentStudentData['kelas']+_0x3bf38f(0x109)+currentStudentData[_0x3bf38f(0xf9)]+_0x3bf38f(0xf8),loadIbadahDropdownOptions(),setTimeout(()=>{const _0x127617=_0x3bf38f;preloader[_0x127617(0xdf)]['add'](_0x127617(0xe9)),document[_0x127617(0xc6)]('#dashboard-container\x20.container')[_0x127617(0xdf)][_0x127617(0xc1)]('loaded');},0x64);}async function handleLogin(_0x3cff98){const _0x1c15ac=_0x130e2f;loginButton[_0x1c15ac(0xdd)]=!![],loginButton[_0x1c15ac(0x126)]='Memverifikasi...';if(preloader[_0x1c15ac(0xdf)][_0x1c15ac(0x130)](_0x1c15ac(0xe9)))preloader[_0x1c15ac(0xdf)][_0x1c15ac(0x129)](_0x1c15ac(0xe9));try{const _0x352bc3=await db[_0x1c15ac(0xd1)]('siswa')['where'](_0x1c15ac(0xff),'==',_0x3cff98)[_0x1c15ac(0x103)](0x1)[_0x1c15ac(0xe1)]();if(_0x352bc3[_0x1c15ac(0xc8)])showMessage(_0x1c15ac(0x110),'Error'),preloader[_0x1c15ac(0xdf)][_0x1c15ac(0xc1)](_0x1c15ac(0xe9));else{const _0x2d0421=_0x352bc3[_0x1c15ac(0xbd)][0x0],_0x63c2e5=_0x2d0421[_0x1c15ac(0x112)](),_0x29d15c={'nama':_0x63c2e5[_0x1c15ac(0xde)],'induk':_0x63c2e5[_0x1c15ac(0xff)],'kelas':_0x63c2e5[_0x1c15ac(0x10f)],'agama':_0x63c2e5[_0x1c15ac(0xf9)]};sessionStorage[_0x1c15ac(0x12d)](_0x1c15ac(0xf0),_0x3cff98),showDashboard(_0x29d15c);}}catch(_0xd6f834){console['error'](_0x1c15ac(0xb7),_0xd6f834),showMessage(_0x1c15ac(0xda),_0x1c15ac(0xfd)),preloader[_0x1c15ac(0xdf)][_0x1c15ac(0xc1)]('hidden');}finally{loginButton[_0x1c15ac(0xdd)]=![],loginButton['textContent']=_0x1c15ac(0xce);}}window[_0x130e2f(0x115)]=function(){const _0x425350=_0x130e2f,_0x32b8a6=sessionStorage[_0x425350(0xcb)](_0x425350(0xf0));_0x32b8a6?handleLogin(_0x32b8a6):preloader['classList'][_0x425350(0xc1)]('hidden');},loginForm[_0x130e2f(0xe8)]('submit',_0x339f69=>{const _0x57367e=_0x130e2f;_0x339f69[_0x57367e(0x113)]();const _0x326b10=document[_0x57367e(0xec)](_0x57367e(0xff))['value']['trim']();_0x326b10?handleLogin(_0x326b10):showMessage(_0x57367e(0xf5),_0x57367e(0xd9));}),document[_0x130e2f(0xec)](_0x130e2f(0xc7))[_0x130e2f(0xe8)](_0x130e2f(0x131),function(_0x5289af){const _0x1fa6d0=_0x130e2f;_0x5289af[_0x1fa6d0(0x113)](),sessionStorage[_0x1fa6d0(0x11c)](),document[_0x1fa6d0(0xec)](_0x1fa6d0(0x128))[_0x1fa6d0(0xbc)]=_0x1fa6d0(0xee),showMessage('Anda\x20telah\x20berhasil\x20logout.',_0x1fa6d0(0x102),()=>{const _0x18b281=_0x1fa6d0;window[_0x18b281(0xd0)]['reload']();});}),document[_0x130e2f(0xec)](_0x130e2f(0xe0))['addEventListener']('change',function(){const _0x555096=_0x130e2f,_0xe17626=document[_0x555096(0xec)](_0x555096(0xf1));_0xe17626[_0x555096(0xeb)][_0x555096(0xcc)]=this[_0x555096(0x111)]?_0x555096(0xe6):_0x555096(0x10b);if(!this['checked'])_0xe17626[_0x555096(0x100)]='';}),document['getElementById'](_0x130e2f(0xb6))['addEventListener']('change',function(){const _0x1be9ab=_0x130e2f,_0x40cda6=document['getElementById']('masyarakatLainnyaText');_0x40cda6[_0x1be9ab(0xeb)]['display']=this[_0x1be9ab(0x111)]?_0x1be9ab(0xe6):_0x1be9ab(0x10b);if(!this[_0x1be9ab(0x111)])_0x40cda6[_0x1be9ab(0x100)]='';}),document[_0x130e2f(0xec)]('activityForm')[_0x130e2f(0xe8)]('submit',function(_0x40626d){const _0x5a97d6=_0x130e2f;_0x40626d[_0x5a97d6(0x113)]();const _0x3936ff=document[_0x5a97d6(0xec)]('submitActivity');_0x3936ff[_0x5a97d6(0xdd)]=!![],_0x3936ff[_0x5a97d6(0x126)]='Menyimpan...';const _0x5ce0cd=Array[_0x5a97d6(0xf4)]({'length':0x7},(_0x2ba214,_0x2ebde5)=>document['getElementById'](_0x5a97d6(0xf7)+(_0x2ebde5+0x1))[_0x5a97d6(0x100)]);function _0x311732(_0x1a9cd2,_0x390dcc,_0x242eaa){const _0x4dc1f5=_0x5a97d6,_0x5735ac=[];document[_0x4dc1f5(0xd6)](_0x4dc1f5(0xd2)+_0x1a9cd2+'\x22]:checked')[_0x4dc1f5(0x11b)](_0x3db5a9=>{const _0x1a7a1d=_0x4dc1f5;_0x3db5a9['id']!==_0x390dcc&&_0x5735ac[_0x1a7a1d(0xcf)](_0x3db5a9[_0x1a7a1d(0x100)]);});const _0x4fbe04=document[_0x4dc1f5(0xec)](_0x390dcc),_0xc7aad4=document[_0x4dc1f5(0xec)](_0x242eaa)[_0x4dc1f5(0x100)][_0x4dc1f5(0x10c)]();return _0x4fbe04[_0x4dc1f5(0x111)]&&_0xc7aad4&&_0x5735ac[_0x4dc1f5(0xcf)](_0xc7aad4),_0x5735ac[_0x4dc1f5(0xd8)](',\x20');}const _0x3afe89=_0x311732(_0x5a97d6(0x11f),_0x5a97d6(0xe0),_0x5a97d6(0xf1)),_0x637f85=_0x311732(_0x5a97d6(0x12b),_0x5a97d6(0xb6),_0x5a97d6(0x12c)),_0x5533ac={'namaSiswa':currentStudentData[_0x5a97d6(0xde)],'nomorInduk':currentStudentData['induk'],'kelas':currentStudentData[_0x5a97d6(0x10f)],'timestamp':firebase[_0x5a97d6(0x108)][_0x5a97d6(0xe5)][_0x5a97d6(0xe7)](),'tanggalKegiatan':document['getElementById'](_0x5a97d6(0xf6))[_0x5a97d6(0x100)],'ibadah1':_0x5ce0cd[0x0],'ibadah2':_0x5ce0cd[0x1],'ibadah3':_0x5ce0cd[0x2],'ibadah4':_0x5ce0cd[0x3],'ibadah5':_0x5ce0cd[0x4],'ibadah6':_0x5ce0cd[0x5],'ibadah7':_0x5ce0cd[0x6],'bangunPagi':document['getElementById'](_0x5a97d6(0x12f))[_0x5a97d6(0x100)],'tidurCepat':document[_0x5a97d6(0xec)](_0x5a97d6(0x107))[_0x5a97d6(0x100)],'rincianOlahraga':_0x3afe89,'tempatBelajar':document[_0x5a97d6(0xec)]('belajarTempat')['value'],'materiBelajar':document[_0x5a97d6(0xec)]('belajarApa')[_0x5a97d6(0x100)],'kegiatanMasyarakat':_0x637f85,'makananKarbo':document['getElementById']('makananKarbo')[_0x5a97d6(0x111)],'makananSayur':document['getElementById'](_0x5a97d6(0xc3))[_0x5a97d6(0x111)],'makananSusu':document['getElementById'](_0x5a97d6(0x10d))[_0x5a97d6(0x111)],'makananLauk':document[_0x5a97d6(0xec)](_0x5a97d6(0x123))[_0x5a97d6(0x111)],'makananAir':document[_0x5a97d6(0xec)](_0x5a97d6(0x114))[_0x5a97d6(0x111)]};db['collection'](_0x5a97d6(0x124))['add'](_0x5533ac)[_0x5a97d6(0x106)](()=>{const _0x15cb1e=_0x5a97d6,_0xf735f=document[_0x15cb1e(0xec)](_0x15cb1e(0x128));_0xf735f[_0x15cb1e(0xbc)]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<button\x20onclick=\x22closeModal()\x22\x20class=\x22submit-button\x22\x20style=\x22margin:\x200;\x20width:\x20auto;\x20padding:\x2012px\x2030px;\x22>OK</button>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<a\x20href=\x22Game.html\x22\x20class=\x22submit-button\x22\x20style=\x22background:\x20linear-gradient(45deg,\x20var(--secondary-color),\x20#10b981);\x20text-decoration:\x20none;\x20display:\x20inline-flex;\x20align-items:\x20center;\x20gap:\x208px;\x20margin:\x200;\x20width:\x20auto;\x20padding:\x2012px\x2030px;\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<i\x20class=\x22fa-solid\x20fa-gamepad\x22></i>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<span>Game</span>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</a>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20',showMessage('Laporan\x20harian\x20berhasil\x20disimpan!','Sukses',()=>{const _0x4000b0=_0x15cb1e;document['getElementById'](_0x4000b0(0xc5))[_0x4000b0(0xef)](),document[_0x4000b0(0xd6)]('.form-group\x20select')[_0x4000b0(0x11b)](_0x42c33a=>_0x42c33a[_0x4000b0(0xd4)](_0x4000b0(0x100),'')),document[_0x4000b0(0xec)](_0x4000b0(0xf1))[_0x4000b0(0xeb)][_0x4000b0(0xcc)]=_0x4000b0(0x10b),document[_0x4000b0(0xec)]('masyarakatLainnyaText')[_0x4000b0(0xeb)][_0x4000b0(0xcc)]=_0x4000b0(0x10b),_0xf735f[_0x4000b0(0xbc)]=_0x4000b0(0xee);});})[_0x5a97d6(0xfc)](_0x4bdd2a=>{const _0x1d738f=_0x5a97d6;console[_0x1d738f(0x10a)](_0x1d738f(0xed),_0x4bdd2a[_0x1d738f(0xc0)]),document[_0x1d738f(0xec)]('messageModalButtons')[_0x1d738f(0xbc)]=_0x1d738f(0xee),showMessage(_0x1d738f(0xb9),_0x1d738f(0xfd));})[_0x5a97d6(0xd5)](()=>{const _0x198ec0=_0x5a97d6;_0x3936ff[_0x198ec0(0xdd)]=![],_0x3936ff[_0x198ec0(0x126)]=_0x198ec0(0xd7);});});
+
+    </script>
+</body>
+</html>
